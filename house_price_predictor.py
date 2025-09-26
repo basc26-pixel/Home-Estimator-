@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import argparse
 import importlib
-import importlib.util
 import sys
 from dataclasses import dataclass
 from typing import Any, Dict, Iterable, List, Sequence, Tuple
@@ -69,13 +68,14 @@ class ModelResults:
 def ensure_dependency(module: str, install_hint: str) -> Any:
     """Import a dependency, raising a friendly error if it is missing."""
 
-    if importlib.util.find_spec(module) is None:
+    try:
+        return importlib.import_module(module)
+    except ModuleNotFoundError:
         raise SystemExit(
             "❌ Missing required dependency '"
             + module
             + f"'. Install it with `pip install {install_hint}`."
-        )
-    return importlib.import_module(module)
+        ) from None
 
 
 def load_dependencies() -> Dependencies:
