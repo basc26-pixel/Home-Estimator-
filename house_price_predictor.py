@@ -83,6 +83,8 @@ def load_dependencies() -> Dependencies:
 
     np = ensure_dependency("numpy", "numpy")
     pd = ensure_dependency("pandas", "pandas")
+    # Ensure the default Excel engine for .xlsx files is available before reading data.
+    ensure_dependency("openpyxl", "openpyxl")
     ensemble = ensure_dependency("sklearn.ensemble", "scikit-learn")
     linear_model = ensure_dependency("sklearn.linear_model", "scikit-learn")
     metrics = ensure_dependency("sklearn.metrics", "scikit-learn")
@@ -137,6 +139,10 @@ def load_data(pd: Any, data_path: str, sheet_name: str) -> Any:
 
     try:
         df = pd.read_excel(data_path, sheet_name=sheet_name)
+    except ImportError as exc:
+        raise SystemExit(
+            "❌ Missing Excel dependency 'openpyxl'. Install it with `pip install openpyxl`."
+        ) from None
     except FileNotFoundError as exc:  # pragma: no cover - interactive feedback
         print(f"❌ File '{data_path}' not found!", file=sys.stderr)
         raise exc
